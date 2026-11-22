@@ -43,8 +43,9 @@ ORDER BY NumberOfOrders DESC;
 SELECT [name], COALESCE(AVG(orders.amount), 0) AS AverageOrdersAmount
 FROM users LEFT JOIN orders ON users.id = orders.userId
 GROUP BY [name]
-HAVING SUM(orders.id) >= 2;
+HAVING COUNT(orders.id) >= 2;
 -- It can be done without COALESCE because we check if users have at least 2 orders
+-- DECIMAL should be used if we want to use AVG and not INT
 
 -- 5: Each user's single largest order
 	-- Solution 1:
