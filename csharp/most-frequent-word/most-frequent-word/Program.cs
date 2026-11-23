@@ -6,23 +6,24 @@ namespace MostFrequentWord
     {
         static string MostFrequentWord(string word)
         {
-            string newWord = word.ToLower();
-            //string[] split = newWord.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            string[] split = newWord.Split(' ');
+            if (string.IsNullOrWhiteSpace(word)) // null, empty strings,whitespace (spaces, tabs, newlines, etc.)
+            {
+                // string.IsNullOrEmpty(word) only empty strings and null
+                return "";
+            }
 
-            //Hashtable ht = new Hashtable();
+            string newWord = new string(word.ToLower().Where(c => !char.IsPunctuation(c)).ToArray());
+            string[] split = newWord.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            if (split.Length == 0)
+            {
+                return "";
+            }
+
             Dictionary<string, int> sub = new Dictionary<string, int>();
 
             foreach (string s in split)
             {
-                //if (ht.ContainsKey(s))
-                //{
-                //    ht[s] = (int)ht[s] + 1;
-                //}
-                //else
-                //{
-                //    ht.Add(s, 1);
-                //}
                 if (sub.ContainsKey(s))
                 {
                     sub[s] += 1;
@@ -34,13 +35,6 @@ namespace MostFrequentWord
             }
 
             string maxStr = split[0];
-            //foreach (string s in ht.Keys)
-            //{
-            //    if ((int)ht[s] > (int)ht[maxStr])
-            //    {
-            //        maxStr = s;
-            //    }
-            //}
 
             foreach (string s in sub.Keys)
             {
@@ -56,11 +50,14 @@ namespace MostFrequentWord
         {
             // Write a function that takes a string and returns the most
             // frequent word, ignoring case and punctuation.
-            Console.WriteLine(MostFrequentWord("hi hello wow wow hi hi"));
-            Console.WriteLine(MostFrequentWord("hi wow hello wow wow hi hi"));
-            Console.WriteLine(MostFrequentWord("Wow Hi  hEllo wow wow hi hi"));
-            Console.WriteLine(MostFrequentWord("cat dog bird"));
-            Console.WriteLine(MostFrequentWord("Java java JAVA python Python"));
+            Console.WriteLine(MostFrequentWord("hi hello wow wow hi hi")); // hi
+            Console.WriteLine(MostFrequentWord("hi wow hello wow wow hi hi")); // hi
+            Console.WriteLine(MostFrequentWord("Wow Hi  hEllo wow wow hi hi")); // wow
+            Console.WriteLine(MostFrequentWord("cat dog bird")); // cat
+            Console.WriteLine(MostFrequentWord("Java java JAVA python Python")); // java
+            Console.WriteLine(MostFrequentWord("")); // ""
+            Console.WriteLine(MostFrequentWord("Java java !JAVA python Python python? jAvA?")); // java
+            Console.WriteLine(MostFrequentWord("?")); // ""
         }
     }
 }
