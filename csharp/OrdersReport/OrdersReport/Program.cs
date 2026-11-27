@@ -51,12 +51,12 @@ internal class Program
         // Solution 1
         var usersWithNoOrdersMethod1 = users.GroupJoin(
             orders,
-            u => u.getId(),
-            o => o.getUserId(),
+            u => u.Id,
+            o => o.UserId,
             (u, userOrders) => new // Creates a result for each user and their matching orders.
             {
-                UserId = u.getId(),
-                UserName = u.getName(),
+                UserId = u.Id,
+                UserName = u.Name,
                 Orders = userOrders,
                 OrderCount = userOrders.Count() // if there is no orders an empty collection will be returned thats why the value will be 0 and not null
             })
@@ -71,13 +71,13 @@ internal class Program
         // Solution 2:
         var usersWithNoOrdersMethod2 = users.LeftJoin(
             orders,
-            u => u.getId(),
-            o => o.getUserId(),
+            u => u.Id,
+            o => o.UserId,
             (u, o) => new
             {
-                UserId = u.getId(),
-                UserName = u.getName(),
-                Amount = o?.getAmount() ?? 0m,
+                UserId = u.Id,
+                UserName = u.Name,
+                Amount = o?.Amount ?? 0m,
                 // ?. checks whether o is null.
                 // ?? 0m provides 0 if the result is null
                 HasNoOrder = o == null
@@ -93,7 +93,7 @@ internal class Program
 
         // Solution 3 similar to NOT EXISTS subquery in SQL
         Console.WriteLine("\nUsers with no orders solution 3:");
-        var usersWithNoOrdersMethod3 = users.Where(u => !orders.Any(o => o.getUserId() == u.getId()));
+        var usersWithNoOrdersMethod3 = users.Where(u => !orders.Any(o => o.UserId == u.Id));
 
         foreach (var user in usersWithNoOrdersMethod3)
         {
@@ -104,13 +104,13 @@ internal class Program
         Console.WriteLine("\nTop 3 users by total amount:");
         var topUsersByTotalAmount = users.GroupJoin(
             orders,
-            u => u.getId(),
-            o => o.getUserId(),
+            u => u.Id,
+            o => o.UserId,
             (u, userOrders) => new
             {
-                UserId = u.getId(),
-                UserName = u.getName(),
-                TotalAmount = userOrders.Sum(o => o.getAmount()) // LINQ's Sum() on an empty collection of decimal values returns 0m
+                UserId = u.Id,
+                UserName = u.Name,
+                TotalAmount = userOrders.Sum(o => o.Amount) // LINQ's Sum() on an empty collection of decimal values returns 0m
             }
             )
             .OrderByDescending(u => u.TotalAmount)
@@ -121,14 +121,15 @@ internal class Program
         //3. Number of orders per city
         Console.WriteLine("\nNumber of orders per city:");
 
+        // Join is an inner join, so cities with no orders (Netanya, Akko) disappear
         var numOfOrdersPerCity = users.Join(
             orders,
-            u => u.getId(),
-            o => o.getUserId(),
+            u => u.Id,
+            o => o.UserId,
             (u, o) => new // result selector
             {
-                City = u.getCity(),
-                OrderId = o.getId()
+                City = u.City,
+                OrderId = o.Id
             }
             )
             .GroupBy(x => x.City)
@@ -146,14 +147,14 @@ internal class Program
         Console.WriteLine("\nAverage order amount per user, only for users with at least 2 orders:");
         var avgOrderAmountPerUser = users.GroupJoin( // Group Join Stores and Products (Left Join + group by)
             orders,
-            u => u.getId(), // from every User take the primary key
-            o => o.getUserId(), // from every Order take the foreign key
+            u => u.Id, // from every User take the primary key
+            o => o.UserId, // from every Order take the foreign key
             (u, o) => new
             {
-                UserId = u.getId(),
-                UserName = u.getName(),
+                UserId = u.Id,
+                UserName = u.Name,
                 OrderCount = o.Count(),
-                AverageAmount = o.DefaultIfEmpty().Average(o => o?.getAmount() ?? 0m)
+                AverageAmount = o.DefaultIfEmpty().Average(o => o?.Amount ?? 0m)
                 // Unlike Sum(), Average() cannot return 0 because there is no value to calculate an average from
                 // DefaultIfEmpty() checks whether a collection is empty.
                 // If the collection has elements → returns the original elements.
